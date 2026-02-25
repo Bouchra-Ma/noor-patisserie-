@@ -142,14 +142,16 @@ export default function SuccessPage() {
         return;
       }
 
-      // 2) Pas de session_id : il faut order_id et être connecté
+      // 2) Pas de session_id : il faut order_id pour charger la commande (avec ou sans auth)
       if (!orderId) {
         setError("Commande introuvable (order_id manquant).");
         setLoading(false);
         return;
       }
       if (!user) {
-        router.push("/login");
+        setError(null);
+        setOrder(null);
+        setLoading(false);
         return;
       }
 
@@ -198,7 +200,31 @@ export default function SuccessPage() {
       </div>
     );
   }
-  // Rediriger vers login UNIQUEMENT s’il n’y a pas de session_id (pas venu de Stripe) et pas connecté
+  // Ne jamais rediriger vers login : si pas de commande à afficher, on affiche un message
+  if (!sessionId && !user && !order && !loading) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="page-heading text-slate-900">Paiement</h1>
+          <p className="page-subheading">Aucune commande à afficher ici.</p>
+        </div>
+        <div className="glass-card flex flex-col items-center gap-4 py-16 text-center">
+          <Package className="h-14 w-14 text-slate-300" />
+          <p className="text-slate-600">
+            Connecte-toi pour voir le détail de tes commandes ou retourne au catalogue.
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button asChild>
+              <Link href="/login">Se connecter</Link>
+            </Button>
+            <Button variant="secondary" asChild>
+              <Link href="/products">Voir le catalogue</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!sessionId && !user && !order) return null;
 
   const paid = order?.status === "paid";

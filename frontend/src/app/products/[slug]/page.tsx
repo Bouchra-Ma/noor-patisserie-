@@ -1,8 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProductAddToCart } from "@/components/product/add-to-cart";
-import { ArrowLeft, Package } from "lucide-react";
-import { fetchCatalogProductBySlug } from "@/lib/fetch-api";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 type Product = {
   id: number;
@@ -15,16 +18,44 @@ type Product = {
   image_url?: string;
 };
 
-interface ProductPageProps {
-  params: { slug: string };
-}
+export default function ProductPageClient() {
+  const params = useParams();
+  const router = useRouter();
+  const slug = typeof params?.slug === "string" ? params.slug : "";
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const product = (await fetchCatalogProductBySlug(params.slug)) as Product | null;
+  useEffect(() => {
+    if (!slug) {
+      router.replace("/products");
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get(`/catalog/products/${slug}/`, { requiresAuth: false });
+        if (cancelled) return;
+        if (!res.ok) {
+          router.replace("/products");
+          return;
+        }
+        const data = (await res.json()) as Product;
+        if (cancelled) return;
+        setProduct(data);
+      } catch {
+        if (!cancelled) router.replace("/products");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, router]);
 
-  if (!product) {
+  if (loading || !product) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-4xl">
         <Link
           href="/products"
           className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-amber-700 transition-colors"
@@ -32,15 +63,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ArrowLeft className="h-4 w-4" />
           Retour aux produits
         </Link>
-        <div className="glass-card flex flex-col items-center gap-4 py-16 text-center">
-          <Package className="h-14 w-14 text-slate-300" />
-          <h1 className="text-xl font-semibold text-slate-800">Produit indisponible</h1>
-          <p className="text-slate-600">
-            Ce produit n’existe pas ou n’est plus disponible. Retourne au catalogue pour voir les autres douceurs.
-          </p>
-          <Button asChild>
-            <Link href="/products">Voir le catalogue</Link>
-          </Button>
+        <div className="glass-card flex items-center justify-center py-16">
+          <p className="text-slate-600">Chargement…</p>
         </div>
       </div>
     );
