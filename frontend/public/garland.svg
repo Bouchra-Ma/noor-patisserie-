@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="200" viewBox="0 0 1400 200">
+  <defs>
+    <linearGradient id="rope" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <!-- Boule 3D : reflet en haut à gauche, ombre en bas -->
+    <radialGradient id="ball" cx="35%" cy="30%" r="65%" fx="38%" fy="28%">
+      <stop offset="0%" stop-color="#fef9c3"/>
+      <stop offset="35%" stop-color="#fde047"/>
+      <stop offset="70%" stop-color="#facc15"/>
+      <stop offset="90%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </radialGradient>
+    <radialGradient id="ball2" cx="32%" cy="28%" r="68%" fx="35%" fy="25%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="40%" stop-color="#fcd34d"/>
+      <stop offset="75%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </radialGradient>
+    <filter id="ballGlow">
+      <feGaussianBlur stdDeviation="0.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Corde -->
+  <path d="M-20 52 Q200 78 450 48 T920 52 T1390 48 L1420 48" fill="none" stroke="url(#rope)" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M-20 88 Q200 114 450 84 T920 88 T1390 84 L1420 84" fill="none" stroke="url(#rope)" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Ligne 1 : boules -->
+  <g filter="url(#ballGlow)">
+    <!-- Cap + boule à chaque position -->
+    <g><ellipse cx="70" cy="50" rx="4" ry="2.5" fill="#92400e"/><circle cx="70" cy="62" r="14" fill="url(#ball)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="200" cy="74" rx="4" ry="2.5" fill="#92400e"/><circle cx="200" cy="86" r="14" fill="url(#ball2)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="330" cy="52" rx="4" ry="2.5" fill="#92400e"/><circle cx="330" cy="64" r="14" fill="url(#ball)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="460" cy="78" rx="4" ry="2.5" fill="#92400e"/><circle cx="460" cy="90" r="14" fill="url(#ball2)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="590" cy="54" rx="4" ry="2.5" fill="#92400e"/><circle cx="590" cy="66" r="14" fill="url(#ball)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="720" cy="76" rx="4" ry="2.5" fill="#92400e"/><circle cx="720" cy="88" r="14" fill="url(#ball2)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="850" cy="56" rx="4" ry="2.5" fill="#92400e"/><circle cx="850" cy="68" r="14" fill="url(#ball)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="980" cy="80" rx="4" ry="2.5" fill="#92400e"/><circle cx="980" cy="92" r="14" fill="url(#ball2)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="1110" cy="58" rx="4" ry="2.5" fill="#92400e"/><circle cx="1110" cy="70" r="14" fill="url(#ball)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="1240" cy="78" rx="4" ry="2.5" fill="#92400e"/><circle cx="1240" cy="90" r="14" fill="url(#ball2)" stroke="#b45309" stroke-width="0.8"/></g>
+    <g><ellipse cx="1370" cy="56" rx="4" ry="2.5" fill="#92400e"/><circle cx="1370" cy="68" r="14" fill="url(#ball)" stroke="#b45309" stroke-width="0.8"/></g>
+  </g>
+  <!-- Ligne 2 : boules (légèrement plus petites) -->
+  <g filter="url(#ballGlow)">
+    <g><ellipse cx="135" cy="86" rx="3.5" ry="2" fill="#92400e"/><circle cx="135" cy="98" r="12" fill="url(#ball2)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="265" cy="90" rx="3.5" ry="2" fill="#92400e"/><circle cx="265" cy="102" r="12" fill="url(#ball)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="395" cy="88" rx="3.5" ry="2" fill="#92400e"/><circle cx="395" cy="100" r="12" fill="url(#ball2)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="525" cy="92" rx="3.5" ry="2" fill="#92400e"/><circle cx="525" cy="104" r="12" fill="url(#ball)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="655" cy="86" rx="3.5" ry="2" fill="#92400e"/><circle cx="655" cy="98" r="12" fill="url(#ball2)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="785" cy="90" rx="3.5" ry="2" fill="#92400e"/><circle cx="785" cy="102" r="12" fill="url(#ball)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="915" cy="88" rx="3.5" ry="2" fill="#92400e"/><circle cx="915" cy="100" r="12" fill="url(#ball2)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="1045" cy="92" rx="3.5" ry="2" fill="#92400e"/><circle cx="1045" cy="104" r="12" fill="url(#ball)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="1175" cy="86" rx="3.5" ry="2" fill="#92400e"/><circle cx="1175" cy="98" r="12" fill="url(#ball2)" stroke="#b45309" stroke-width="0.7"/></g>
+    <g><ellipse cx="1305" cy="90" rx="3.5" ry="2" fill="#92400e"/><circle cx="1305" cy="102" r="12" fill="url(#ball)" stroke="#b45309" stroke-width="0.7"/></g>
+  </g>
+</svg>
