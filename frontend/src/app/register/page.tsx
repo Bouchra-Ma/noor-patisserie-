@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
+import { api } from "@/lib/api-client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,14 +26,16 @@ export default function RegisterPage() {
     const last_name = rest.join(" ");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/auth/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, first_name, last_name }),
-      });
+      const res = await api.post(
+        "/auth/register/",
+        { email, password, first_name, last_name },
+        { requiresAuth: false }
+      );
 
       if (!res.ok) {
-        setError("Impossible de créer le compte. Vérifie les informations.");
+        const errData = await res.json().catch(() => ({}));
+        const msg = errData?.email?.[0] || errData?.detail || "Impossible de créer le compte. Vérifie les informations.";
+        setError(msg);
         return;
       }
       const data = await res.json();
