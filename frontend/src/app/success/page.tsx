@@ -67,58 +67,107 @@ export default function SuccessPage() {
 
   useEffect(() => {
     if (!isHydrated || !redirectChecked) return;
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-    if (!orderId) {
-      setError("Commande introuvable (order_id manquant).");
+    if (!orderId && !sessionId) {
+      setError("Commande introuvable (order_id ou session_id manquant).");
       setLoading(false);
       return;
     }
 
     let cancelled = false;
     let tries = 0;
-    const maxTries = 20; // ~40s
+    const maxTries = 20;
 
-    async function fetchOrder() {
-      tries += 1;
-      try {
-        // If we have a Stripe session id, try confirming server-side (local dev friendly)
-        if (sessionId) {
-          await api.post("/payments/confirm-checkout-session/", { session_id: sessionId });
+    async function run() {
+      // 1) Si on a session_id (retour Stripe mobile / autre onglet), essayer l’endpoint public sans auth
+      if (sessionId) {
+        try {
+          const res = await api.get(
+            `/orders/by-checkout-session/?session_id=${encodeURIComponent(sessionId)}`,
+            { requiresAuth: false }
+          );
+          if (cancelled) return;
+          if (res.ok) {
+            const data = (await res.json()) as Order;
+            setOrder(data);
+            if (data.status === "paid") clearCart();
+            setLoading(false);
+            if (data.status === "pending") {
+              const poll = async () => {
+                if (cancelled) return;
+                try {
+                  const r = await api.get(
+                    `/orders/by-checkout-session/?session_id=${encodeURIComponent(sessionId)}`,
+                    { requiresAuth: false }
+                  );
+                  if (cancelled || !r.ok) return;
+                  const d = (await r.json()) as Order;
+                  setOrder(d);
+                  if (d.status === "paid") clearCart();
+                  if (d.status === "pending" && !cancelled) setTimeout(poll, 2000);
+                } catch {
+                  // ignore
+                }
+              };
+              setTimeout(poll, 2000);
+            }
+            return;
+          }
+        } catch {
+          if (!cancelled) {
+            setError("Impossible de charger la commande.");
+            setLoading(false);
+          }
         }
-
-        const res = await api.get(`/orders/${orderId}/`);
-        if (!res.ok) {
-          if (!cancelled) setError("Impossible de charger la commande.");
-          return;
-        }
-        const data = (await res.json()) as Order;
         if (cancelled) return;
-        setOrder(data);
-
-        // Dès que la commande est payée, on vide le panier côté client
-        if (data.status === "paid") clearCart();
-
-        // Tant que le webhook n'a pas marqué paid, on repoll
-        if (data.status === "pending" && tries < maxTries) {
-          setTimeout(fetchOrder, 2000);
-        }
-      } catch {
-        if (!cancelled) setError("Une erreur est survenue.");
-      } finally {
-        if (!cancelled) setLoading(false);
+        // Public fetch a échoué, on continue avec le flux auth si pas d’utilisateur → login
       }
+
+      // 2) Pas de session_id ou endpoint public en échec : il faut être connecté
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      if (!orderId) {
+        setError("Commande introuvable (order_id manquant).");
+        setLoading(false);
+        return;
+      }
+
+      // 3) Récupérer la commande avec auth (flux classique)
+      async function fetchOrder() {
+        tries += 1;
+        try {
+          if (sessionId) {
+            await api.post("/payments/confirm-checkout-session/", { session_id: sessionId });
+          }
+          const res = await api.get(`/orders/${orderId}/`);
+          if (!res.ok) {
+            if (!cancelled) setError("Impossible de charger la commande.");
+            return;
+          }
+          const data = (await res.json()) as Order;
+          if (cancelled) return;
+          setOrder(data);
+          if (data.status === "paid") clearCart();
+          if (data.status === "pending" && tries < maxTries) {
+            setTimeout(fetchOrder, 2000);
+          }
+        } catch {
+          if (!cancelled) setError("Une erreur est survenue.");
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      }
+      fetchOrder();
     }
 
-    fetchOrder();
+    run();
     return () => {
       cancelled = true;
     };
   }, [isHydrated, redirectChecked, user, router, orderId, sessionId, clearCart]);
 
-  // Afficher un chargement tant qu'on n'a pas vérifié la session (évite redirection login trop tôt)
+  // Chargement tant qu’on n’a pas vérifié la session (évite redirection login trop tôt)
   if (!isHydrated || (!redirectChecked && !user)) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col gap-8">
@@ -129,7 +178,8 @@ export default function SuccessPage() {
       </div>
     );
   }
-  if (!user) return null;
+  // Rediriger vers login seulement si pas d’utilisateur ET pas de commande (ex. pas de session_id)
+  if (!user && !order) return null;
 
   const paid = order?.status === "paid";
 
