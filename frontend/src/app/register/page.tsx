@@ -34,7 +34,11 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        const msg = errData?.email?.[0] || errData?.detail || "Impossible de créer le compte. Vérifie les informations.";
+        const msg =
+          errData?.email?.[0] ||
+          (typeof errData?.detail === "string" ? errData.detail : null) ||
+          errData?.password?.[0] ||
+          "Impossible de créer le compte. Vérifie les informations (mot de passe 8 caractères min.).";
         setError(msg);
         return;
       }
@@ -43,7 +47,7 @@ export default function RegisterPage() {
       router.push("/");
     } catch (err) {
       console.error(err);
-      setError("Une erreur est survenue. Réessaie plus tard.");
+      setError("Erreur réseau ou CORS. Vérifie que le backend Render est en ligne et que l’URL Vercel est dans CORS sur Render.");
     } finally {
       setLoading(false);
     }

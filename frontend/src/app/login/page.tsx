@@ -24,7 +24,12 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login/", { email, password }, { requiresAuth: false });
       if (!res.ok) {
-        setError("Email ou mot de passe incorrect.");
+        const errData = await res.json().catch(() => ({}));
+        const msg =
+          (typeof errData?.detail === "string" ? errData.detail : null) ||
+          errData?.detail?.message ||
+          "Email ou mot de passe incorrect.";
+        setError(msg);
         return;
       }
       const data = await res.json();
@@ -32,7 +37,7 @@ export default function LoginPage() {
       router.push("/");
     } catch (err) {
       console.error(err);
-      setError("Une erreur est survenue. Réessaie plus tard.");
+      setError("Erreur réseau ou CORS. Vérifie que le backend Render est en ligne et que l’URL Vercel est dans CORS.");
     } finally {
       setLoading(false);
     }
