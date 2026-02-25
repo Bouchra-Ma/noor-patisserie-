@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ProductAddToCart } from "@/components/product/add-to-cart";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Package } from "lucide-react";
 import { fetchCatalogProductBySlug } from "@/lib/fetch-api";
+import { Button } from "@/components/ui/button";
 
 type Product = {
   id: number;
@@ -22,7 +22,29 @@ interface ProductPageProps {
 export default async function ProductPage({ params }: ProductPageProps) {
   const product = (await fetchCatalogProductBySlug(params.slug)) as Product | null;
 
-  if (!product) notFound();
+  if (!product) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <Link
+          href="/products"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-amber-700 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour aux produits
+        </Link>
+        <div className="glass-card flex flex-col items-center gap-4 py-16 text-center">
+          <Package className="h-14 w-14 text-slate-300" />
+          <h1 className="text-xl font-semibold text-slate-800">Produit indisponible</h1>
+          <p className="text-slate-600">
+            Ce produit n’existe pas ou n’est plus disponible. Retourne au catalogue pour voir les autres douceurs.
+          </p>
+          <Button asChild>
+            <Link href="/products">Voir le catalogue</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
