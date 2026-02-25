@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Noor — Pâtisserie de Ramadan",
   description:
-    "Pâtisserie du Ramadan inspirée du Moyen‑Orient : baklawa, kunafa, maamoul, dattes et boissons traditionnelles.",
+    "Pâtisserie du Ramadan inspirée du Moyen‑Orient : baklawa, kunafa, maamoul, dattes et douceurs.",
 };
 
 export default function RootLayout({
