@@ -249,7 +249,7 @@ export default function SuccessPage() {
                 <Button variant="secondary" onClick={() => window.location.reload()}>
                   Rafraîchir
                 </Button>
-                <Button variant="outline" asChild>
+                <Button variant="secondary" asChild>
                   <Link href="/products">Retour aux produits</Link>
                 </Button>
               </div>
