@@ -53,9 +53,20 @@ export default function SuccessPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [redirectChecked, setRedirectChecked] = useState(false);
 
+  // Attendre la réhydratation (localStorage) avant de considérer une redirection vers login.
+  // Après un retour Stripe, le store peut être vide au premier rendu puis restauré.
   useEffect(() => {
     if (!isHydrated) return;
+    const t = setTimeout(() => {
+      setRedirectChecked(true);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [isHydrated]);
+
+  useEffect(() => {
+    if (!isHydrated || !redirectChecked) return;
     if (!user) {
       router.push("/login");
       return;
@@ -105,9 +116,20 @@ export default function SuccessPage() {
     return () => {
       cancelled = true;
     };
-  }, [isHydrated, user, router, orderId, sessionId, clearCart]);
+  }, [isHydrated, redirectChecked, user, router, orderId, sessionId, clearCart]);
 
-  if (!isHydrated || !user) return null;
+  // Afficher un chargement tant qu'on n'a pas vérifié la session (évite redirection login trop tôt)
+  if (!isHydrated || (!redirectChecked && !user)) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-8">
+        <div className="glass-card flex items-center justify-center gap-3 py-12">
+          <Clock className="h-5 w-5 animate-pulse text-amber-500" />
+          <p className="text-slate-600">Chargement…</p>
+        </div>
+      </div>
+    );
+  }
+  if (!user) return null;
 
   const paid = order?.status === "paid";
 

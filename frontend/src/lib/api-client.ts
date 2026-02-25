@@ -1,6 +1,25 @@
 import { useAuthStore } from "@/store/auth-store";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+let cachedBaseUrl: string | null = null;
+let baseUrlPromise: Promise<string> | null = null;
+
+/** Récupère l'URL de l'API (depuis /api/config). Sur Vercel, la variable est lue au runtime. */
+function getApiBaseUrl(): Promise<string> {
+  if (cachedBaseUrl) return Promise.resolve(cachedBaseUrl);
+  if (!baseUrlPromise) {
+    baseUrlPromise = fetch("/api/config")
+      .then((r) => r.json())
+      .then(
+        (d: { apiBaseUrl?: string }) =>
+          (d.apiBaseUrl || "http://127.0.0.1:8000/api").replace(/\/$/, "")
+      )
+      .then((url) => {
+        cachedBaseUrl = url;
+        return url;
+      });
+  }
+  return baseUrlPromise;
+}
 
 interface ApiRequestOptions extends RequestInit {
   requiresAuth?: boolean;
@@ -12,6 +31,7 @@ export async function apiClient(
 ): Promise<Response> {
   const { requiresAuth = true, ...init } = options;
   const store = useAuthStore.getState();
+  const API_BASE_URL = await getApiBaseUrl();
 
   const url = `${API_BASE_URL}${endpoint}`;
   const headers: HeadersInit = {
@@ -27,7 +47,7 @@ export async function apiClient(
   let response = await fetch(url, {
     ...init,
     headers,
-    credentials: "include",
+    credentials: requiresAuth ? "include" : "omit",
   });
 
   // If unauthorized and we have a refresh token, try to refresh

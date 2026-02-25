@@ -1,4 +1,16 @@
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api").replace(/\/$/, "");
+const API_BASE = (() => {
+  const url = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api").replace(/\/$/, "");
+  if (
+    typeof window !== "undefined" &&
+    !process.env.NEXT_PUBLIC_API_URL &&
+    !/localhost|127\.0\.0\.1/.test(window.location.hostname)
+  ) {
+    console.error(
+      "[Noor] NEXT_PUBLIC_API_URL n'est pas défini. Définissez-le dans Vercel puis redéployez."
+    );
+  }
+  return url;
+})();
 const FETCH_TIMEOUT_MS = 5000;
 
 /**
