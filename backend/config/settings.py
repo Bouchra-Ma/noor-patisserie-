@@ -197,8 +197,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Configuration
+# Avec credentials (cookies/tokens), le navigateur n'accepte PAS "Access-Control-Allow-Origin: *".
+# Il faut lister les origines exactes (prod + previews Vercel).
 _cors_allow_all = os.environ.get("CORS_ALLOW_ALL_ORIGINS", "").strip().lower() in ("1", "true", "yes")
 if _cors_allow_all:
+    # Mode permissif SANS credentials (éviter en prod si le front envoie des cookies)
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = False
 else:
@@ -211,6 +214,11 @@ else:
             "http://127.0.0.1:8000",
         ],
     )
+    # Autoriser aussi tous les sous-domaines Vercel (*.vercel.app) pour les previews
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^https://[a-z0-9-]+\.vercel\.app$",
+        r"^https://[a-z0-9-]+-[a-z0-9-]+\.vercel\.app$",
+    ]
     CORS_ALLOW_CREDENTIALS = True
 
 # CSRF (needed when serving frontend on a different domain)
