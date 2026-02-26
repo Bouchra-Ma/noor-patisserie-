@@ -11,7 +11,7 @@ const API_BASE = (() => {
   }
   return url;
 })();
-const FETCH_TIMEOUT_MS = 5000;
+const FETCH_TIMEOUT_MS = 20000;
 
 /**
  * Fetch avec timeout pour éviter que la page reste bloquée si le backend ne répond pas.
