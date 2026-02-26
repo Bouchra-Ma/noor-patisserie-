@@ -156,19 +156,20 @@ def create_checkout_session(request):
         default_success_url = f"{frontend_url}/success?order_id={order.id}&session_id={{CHECKOUT_SESSION_ID}}"
         default_cancel_url = f"{frontend_url}/cart"
 
+        success_url_param = request.query_params.get("success_url", "").strip().rstrip("/")
+        if success_url_param:
+            success_url = f"{success_url_param}?order_id={order.id}&session_id={{CHECKOUT_SESSION_ID}}"
+        else:
+            success_url = request.query_params.get("success_url") or default_success_url
+        cancel_url = request.query_params.get("cancel_url") or default_cancel_url
+
         # Create Stripe Checkout Session
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=request.query_params.get(
-                'success_url',
-                default_success_url
-            ),
-            cancel_url=request.query_params.get(
-                'cancel_url',
-                default_cancel_url
-            ),
+            success_url=success_url,
+            cancel_url=cancel_url,
             customer_email=request.user.email,
             metadata={'order_id': order.id},
         )

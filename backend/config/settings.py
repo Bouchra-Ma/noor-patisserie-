@@ -212,12 +212,12 @@ else:
             "http://127.0.0.1:3000",
             "http://localhost:8000",
             "http://127.0.0.1:8000",
+            "https://noor.patisserie.vercel.app",
         ],
     )
-    # Autoriser aussi tous les sous-domaines Vercel (*.vercel.app) pour les previews
+    # Sous-domaines Vercel (ex: noor.patisserie.vercel.app, noor-patisserie-xxx.vercel.app)
     CORS_ALLOWED_ORIGIN_REGEXES = [
-        r"^https://[a-z0-9-]+\.vercel\.app$",
-        r"^https://[a-z0-9-]+-[a-z0-9-]+\.vercel\.app$",
+        r"^https://[a-z0-9][a-z0-9.-]*\.vercel\.app$",
     ]
     CORS_ALLOW_CREDENTIALS = True
 

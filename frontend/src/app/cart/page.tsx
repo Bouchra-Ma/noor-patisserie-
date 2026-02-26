@@ -34,7 +34,12 @@ export default function CartPage() {
     }
 
     try {
-      const res = await api.post("/payments/create-checkout-session/", { items });
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const successBase = origin ? `${origin.replace(/\/$/, "")}/success` : "";
+      const url = successBase
+        ? `/payments/create-checkout-session/?success_url=${encodeURIComponent(successBase)}`
+        : "/payments/create-checkout-session/";
+      const res = await api.post(url, { items });
       if (!res.ok) {
         console.error("Checkout creation failed", await res.text());
         return;
